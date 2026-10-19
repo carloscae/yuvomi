@@ -1,0 +1,37 @@
+# Mac mini M4 trial deploy (OrbStack). Tailscale-only: both ports bind the mini's
+# Tailscale IP, nothing on LAN or 0.0.0.0. Not upstream; upstream's
+# docker-compose.yml stays untouched. Render .env first: scripts/m4-render-env.sh
+name: yuvomi
+services:
+  yuvomi:
+    image: ghcr.io/ulsklyc/yuvomi:latest
+    container_name: yuvomi
+    restart: unless-stopped
+    ports:
+      - "100.76.99.98:3100:3000"
+    volumes:
+      - /Volumes/External/docker/volumes/yuvomi/data:/data
+      - /Volumes/External/docker/volumes/yuvomi/backups:/backups
+      - /Volumes/External/docker/volumes/yuvomi/modules:/app/modules
+    env_file: [.env]
+    environment:
+      NODE_ENV: production
+      DB_PATH: /data/yuvomi.db
+      BACKUP_DIR: /backups
+      MODULES_DIR: /app/modules
+      SESSION_SECURE: "false"
+      TRUST_PROXY: loopback
+      TZ: Europe/Vienna
+      BASE_URL: http://100.76.99.98:3100
+    mem_limit: 512m
+    depends_on: [radicale]
+  radicale:
+    image: tomsquest/docker-radicale:latest
+    container_name: yuvomi-radicale
+    restart: unless-stopped
+    ports:
+      - "100.76.99.98:5233:5232"
+    volumes:
+      - /Volumes/External/docker/volumes/yuvomi/radicale/data:/data
+      - /Volumes/External/docker/volumes/yuvomi/radicale/config:/config:ro
+    mem_limit: 128m
