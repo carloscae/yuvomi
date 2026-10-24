@@ -8,7 +8,7 @@ services:
     container_name: yuvomi
     restart: unless-stopped
     ports:
-      - "100.76.99.98:3100:3000"
+      - "127.0.0.1:3100:3000"   # HTTPS via tailscale serve :8443 (2026-10-24)
     volumes:
       - /Volumes/External/docker/volumes/yuvomi/data:/data
       - /Volumes/External/docker/volumes/yuvomi/backups:/backups
@@ -19,10 +19,10 @@ services:
       DB_PATH: /data/yuvomi.db
       BACKUP_DIR: /backups
       MODULES_DIR: /app/modules
-      SESSION_SECURE: "false"
-      TRUST_PROXY: loopback
+      SESSION_SECURE: "true"
+      TRUST_PROXY: "1"
       TZ: Europe/Vienna
-      BASE_URL: http://100.76.99.98:3100
+      BASE_URL: https://mac-mini.tailfa4cdf.ts.net:8443
     mem_limit: 512m
     depends_on: [radicale]
   radicale:
