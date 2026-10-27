@@ -35,7 +35,7 @@ Ops: `docker compose -f docker-compose.m4.yml up -d | down | logs`. Update: `doc
 
 ## Hermes (applied 2026-10-24)
 
-The house profile on the M5 has a `yuvomi` MCP server at the 8443 URL with `Authorization: Bearer ${YUVOMI_HERMES_TOKEN}` and an allowlist of 7 tools. `100.76.99.98:3100` is not reachable from the M5. A daily no-agent job recomputes nutrition targets from the latest vitals and prints only on change. Detail: vault `personal/projects/m5-deployment-runbook`, section "What runs in the house profile".
+The house profile on the M5 has a `yuvomi` MCP server at the 8443 URL with `Authorization: Bearer ${YUVOMI_HERMES_TOKEN}` and an allowlist of 7 tools. `100.76.99.98:3100` is not reachable from the M5. A daily no-agent job recomputes nutrition targets from the latest vitals and prints only on change. Detail: vault `personal/projects/homelab/m5-deployment-runbook`, section "What runs in the house profile".
 
 ## Decision for the lead
 
