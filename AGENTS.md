@@ -19,3 +19,7 @@ Push to main of `carloscae/yuvomi` after the repo's local checks. No PRs. Stage 
 
 - iCloud app-specific password (account.apple.com, Sign-In and Security, App-Specific Passwords). Store it with `secret-set -f YUVOMI_ICLOUD_APP_PASSWORD` (value on stdin), then run the steps in `docs/icloud-sync.md`.
 - oMLX on the M5 is not reachable from the M4 until the edited plist is loaded (see `docs/handoff.md`).
+
+## Simulators
+
+Use only the shared simulators (iOS/watchOS 27.0): iPhone 17e (small), iPhone 17 (regular), iPhone 18 Pro Max (large), Apple Watch Series 12 46mm. Never `simctl create` per-task or per-build devices: 22 of them filled the internal disk (Carlos, 2026-11-04). Need a clean state: `simctl erase` the shared one and say so. Need an odd size once: create it and `simctl delete <uuid>` in the same session. Memory: `feedback_use-the-shared-simulators-never-create-new-ones-2026-11-04`.
