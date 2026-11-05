@@ -30,7 +30,7 @@ iPhone setup values for Radicale: server `100.76.99.98`, port `5233`, user `carl
 
 ## Footprint
 
-README claim 256 MB. Measured (`docker stats --no-stream`, OrbStack, arm64 image `ghcr.io/ulsklyc/yuvomi:latest`, 594 MB on disk): Yuvomi 140 to 156 MiB, Radicale 24 MiB, idle after a few syncs. One SQLite file (encrypted with SQLCipher, key in the secrets store), data 6 MB.
+README claim 256 MB. Measured (`docker stats --no-stream`, OrbStack, arm64 image `ghcr.io/ulsklyc/yuvomi:latest`, 594 MB on disk): Yuvomi 140 to 156 MiB, Radicale 24 MiB, idle after a few syncs (2026-11-05: Yuvomi 318 MiB, Radicale 29 MiB). One SQLite file (encrypted with SQLCipher, key in the secrets store), data 6 MB on 2026-10-19, 30 MB on 2026-11-05.
 
 ## Steps once the iCloud app-specific password exists
 

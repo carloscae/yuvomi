@@ -2,19 +2,19 @@
 
 **Status 2026-10-24: in use, no longer only a trial.** Household was retired the same day and its data moved here; Yuvomi is now the only live copy of the family recipes, body measurements and nutrition targets, and the back end Hermes (M5, house profile) talks to. The 2026-10-26 trial end below is superseded. Retirement log with the details: `~/Projects/household/docs/retirement-2026-10-24.md`.
 
-Fork `carloscae/yuvomi` (upstream ulsklyc/yuvomi, v2.78.0, no code patched). Trial window was one week from 2026-10-19, fallback Tribu. Detail on limits: `docs/icloud-sync.md`.
+Fork `carloscae/yuvomi` (upstream ulsklyc/yuvomi; running image reports v2.78.0, upstream is at v2.85.0 on 2026-11-05; no code patched). Trial window was one week from 2026-10-19, fallback Tribu. Detail on limits: `docs/icloud-sync.md`.
 
 ## What runs (Mac mini M4, OrbStack)
 
 | Thing | Where |
 |---|---|
-| Yuvomi | `https://mac-mini.tailfa4cdf.ts.net:8443` (`tailscale serve` to 127.0.0.1:3100; Hermes uses this), `http://100.76.99.98:3100` (Tailscale only, nothing on LAN), container `yuvomi`, image `ghcr.io/ulsklyc/yuvomi:latest` (pulled, not built, so no lockf needed) |
+| Yuvomi | `https://mac-mini.tailfa4cdf.ts.net:8443` (`tailscale serve` to 127.0.0.1:3100; Hermes uses this), `127.0.0.1:3100` on the mini (loopback only since 2026-10-24, commit 80d0014b; `http://100.76.99.98:3100` no longer answers), container `yuvomi`, image `ghcr.io/ulsklyc/yuvomi:latest` (pulled, not built, so no lockf needed) |
 | Radicale | `http://100.76.99.98:5233`, container `yuvomi-radicale`, user `carlos`, collection `/carlos/family-tasks/` (VTODO) |
 | Compose / env | `docker-compose.m4.yml`, `scripts/m4-render-env.sh` (renders `.env` and Radicale config from the secrets store, never prints) |
 | Data | `/Volumes/External/docker/volumes/yuvomi/{data,backups,modules,radicale}`; SQLite is SQLCipher-encrypted; nightly app backup at 02:00 into `backups/` (same drive as the data, no off-drive copy) |
-| Secrets (`~/Projects/secrets/`) | `YUVOMI_SESSION_SECRET`, `YUVOMI_DB_ENCRYPTION_KEY` (unrecoverable, never rotate), `YUVOMI_ADMIN_PASSWORD`, `YUVOMI_RADICALE_PASSWORD`, `YUVOMI_MCP_TOKEN` |
+| Secrets (`~/Projects/secrets/`) | `YUVOMI_SESSION_SECRET`, `YUVOMI_DB_ENCRYPTION_KEY` (unrecoverable, never rotate), `YUVOMI_ADMIN_PASSWORD`, `YUVOMI_RADICALE_PASSWORD`, `YUVOMI_MCP_TOKEN`, `YUVOMI_HERMES_TOKEN`, `YUVOMI_CARLOS_PASSWORD`, `YUVOMI_VICTORIA_PASSWORD`, `YUVOMI_FELINE_PASSWORD` |
 | Accounts | the admin test account plus the family members (Carlos, Victoria, Feline as child) with caregiver grants; API token `hermes-house` (secret `YUVOMI_HERMES_TOKEN`, scoped, acts as Carlos) for Hermes. The raw token is in the top-level `token` field of the create response. |
-| Memory | Yuvomi 140-156 MiB, Radicale 24 MiB (`docker stats --no-stream`); limits 512m / 128m |
+| Memory | 2026-10-19: Yuvomi 140-156 MiB, Radicale 24 MiB; 2026-11-05: Yuvomi 318 MiB, Radicale 29 MiB (`docker stats --no-stream`); limits 512m / 128m |
 
 Test residue (harmless, delete any time): tasks "mcp smoke test", "Yuvomi to Radicale test", "oMLX MCP test"; Radicale calendar `/carlos/probe-events/` with two probe events, enabled on Yuvomi's CalDAV account 1 ("Radicale (tasks)"). Scratch: `/Volumes/External/scratch/yuvomi-*`.
 
@@ -22,7 +22,7 @@ Ops: `docker compose -f docker-compose.m4.yml up -d | down | logs`. Update: `doc
 
 ## Verified (commands run today)
 
-- Tailscale URL: `curl http://100.76.99.98:3100/health` returns 200; a LAN-IP request to port 3100 fails (bind is Tailscale only).
+- Tailscale URL (2026-10-19, superseded 2026-10-24 by the loopback bind plus `tailscale serve` :8443): `curl http://100.76.99.98:3100/health` returned 200; a LAN-IP request to port 3100 failed (bind was Tailscale only).
 - Tasks to Radicale: task created with `sync_target`, after `POST /api/v1/calendar/caldav/reminders/sync` the `.ics` is in `/carlos/family-tasks/` (PROPFIND). Inbound direction not tested for tasks.
 - Events two-way, **against Radicale, not iCloud**: external event shows in Yuvomi after sync; Yuvomi event with a target shows in Radicale.
 - MCP + model: `scripts/mcp-omlx-test.py` run on the M5 over SSH (M5 reaches Yuvomi over Tailscale, oMLX on its loopback, no key needed today). `Qwen3.8-27B-4bit` returned `tool_calls`, the script ran `create_task` and `list_tasks` on `/mcp`, final answer correct. oMLX log `~/splash/omlx.log` 10:03 local: three `Chat completion ... finish_reason=tool_calls` / final lines.
@@ -39,4 +39,4 @@ The house profile on the M5 has a `yuvomi` MCP server at the 8443 URL with `Auth
 
 ## Decision for the lead
 
-Superseded 2026-10-24: Yuvomi stays, the Household database is deleted. `docker compose -f docker-compose.m4.yml down` stops Hermes's back end (data stays). Cost: ~165 MiB RAM, one 594 MB image. Kinhold is a separate parked effort, listed in `~/Projects/kinhold/docs/handoff.md` (image `kinhold-home:dev`, DB `kinhold_v2`, repo, M5 plist edit); nothing of it was deleted.
+Superseded 2026-10-24: Yuvomi stays, the Household database is deleted. `docker compose -f docker-compose.m4.yml down` stops Hermes's back end (data stays). Cost: ~165 MiB RAM, one 594 MB image. Kinhold is a separate effort (state: vault `personal/projects/_registry.md`; the local `~/Projects/kinhold` checkout no longer exists, GitHub repos `carloscae/kinhold` archived and `carloscae/kinhold-home` kept; its Postgres DBs, image and volumes were wiped 2026-10-19).
